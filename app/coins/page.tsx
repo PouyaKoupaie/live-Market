@@ -1,12 +1,20 @@
-import { CoinTable } from "@/features/coins/components/coin-table";
-import { getTopCoins } from "@/features/coins/services/coin-gecko";
+import { HydrationBoundary, QueryClient, dehydrate, useQuery } from '@tanstack/react-query'
 
-export default async function Home() {
-  const coins = await getTopCoins();
+import { CoinTable } from '@/features/coins/components/coin-table'
+import { getCoins } from '@/lib/fetcher'
+
+export default async function CoinsTable() {
+  const queryClient = new QueryClient()
+
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: ['coins'],
+    queryFn: getCoins,
+    initialPageParam: 1,
+  })
 
   return (
-    <div>
-      <CoinTable coins={coins}></CoinTable>
-    </div>
-  );
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <CoinTable />
+    </HydrationBoundary>
+  )
 }

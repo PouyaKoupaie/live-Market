@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
         hostname: "coin-images.coingecko.com",
       },
     ],
+    qualities: [25, 50, 75],
   },
 };
 
