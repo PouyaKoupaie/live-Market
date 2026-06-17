@@ -36,7 +36,7 @@ export default function RootLayout({
       lang="en"
       className={`${_ibmPlexSans.variable} ${_ibmPlexSerif.variable} ${_ibmPlexMono.variable} font-sans`}
     >
-      <body className="antialiased">
+      <body className="antialiased p-4">
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -16,6 +16,7 @@ import {
 import { getCoins } from '@/lib/fetcher'
 
 import { CoinGeckoCoin } from '../type'
+import { SkeletonTable } from '@/components/ui/skeleton-table'
 
 export function CoinTable() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
@@ -29,10 +30,10 @@ export function CoinTable() {
     },
   })
 
-  const coins = data?.pages.flat() ?? []
+  const coins = data?.pages.flat() ?? [] ;
 
   // intersectionObserver logic
-  useEffect(() => {
+  (useEffect(() => {
     const el = loadMoreRef.current
     if (!el) return
 
@@ -42,56 +43,54 @@ export function CoinTable() {
         fetchNextPage()
       }
     })
-    observer.observe(el);
+    observer.observe(el)
 
-    return () => observer.disconnect();
-  }), [fetchNextPage, hasNextPage, isFetchingNextPage];
+    return () => observer.disconnect()
+  }),
+    [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   return (
     <div>
-
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>rank</TableHead>
-          <TableHead>coin</TableHead>
-          <TableHead>price</TableHead>
-          <TableHead>24h</TableHead>
-          <TableHead>Market Cap</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {coins?.map((coin: CoinGeckoCoin) => (
-          <TableRow key={coin.id}>
-            <TableCell>{coin.market_cap_rank}</TableCell>
-            <TableCell>
-              <Image
-                src={coin.image}
-                alt={`${coin.symbol} icon`}
-                width={22}
-                height={22}
-                style={{ display: 'inline' }}
-                quality={75}
-              />
-              <span className="m-1">{coin.name}</span>
-              <span className="text-gray-400">{coin.symbol}</span>
-            </TableCell>
-            <TableCell>{coin.current_price}</TableCell>
-            <TableCell
-              className={coin.price_change_percentage_24h < 0 ? 'text-red-600' : 'text-green-600'}
-            >
-              {coin.price_change_percentage_24h} %
-            </TableCell>
-            <TableCell>{coin.market_cap}</TableCell>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>rank</TableHead>
+            <TableHead>coin</TableHead>
+            <TableHead>price</TableHead>
+            <TableHead>24h</TableHead>
+            <TableHead>Market Cap</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {coins.map((coin: CoinGeckoCoin) => (
+            <TableRow key={coin.id}>
+              <TableCell>{coin.market_cap_rank}</TableCell>
+              <TableCell>
+                <Image
+                  src={coin.image}
+                  alt={`${coin.symbol} icon`}
+                  width={22}
+                  height={22}
+                  style={{ display: 'inline' }}
+                  quality={75}
+                />
+                <span className="m-1">{coin.name}</span>
+                <span className="text-gray-400">{coin.symbol}</span>
+              </TableCell>
+              <TableCell>{coin.current_price}</TableCell>
+              <TableCell
+                className={coin.price_change_percentage_24h < 0 ? 'text-red-600' : 'text-green-600'}
+              >
+                {coin.price_change_percentage_24h} %
+              </TableCell>
+              <TableCell>{coin.market_cap}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <div ref={loadMoreRef} style={{ height: 1 }} />
 
-      {isFetchingNextPage && (
-        <p className='text-center'>Loading more...</p>
-      )}
+      {isFetchingNextPage && <SkeletonTable/>}
     </div>
   )
 }
