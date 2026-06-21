@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/shared/ui/skeleton"
 export function SkeletonTable() {
   return (
     <div className="flex w-full flex-col gap-2">

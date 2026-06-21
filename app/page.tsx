@@ -1,12 +1,10 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
-import { HomeCard } from '@/components/ui/HomeCard'
-import { Card } from '@/components/ui/card'
+import { HomeCard } from '@/shared/ui/HomeCard'
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center font-sans bg-background dark:bg-black">
+    <div className="flex flex-col flex-1 items-center justify-center font-sans ">
       <main className="flex justify-around w-full">
         <Link href="/coins">
           <HomeCard

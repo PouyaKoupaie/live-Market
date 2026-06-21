@@ -12,11 +12,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/shared/ui/table'
 import { getCoins } from '@/lib/fetcher'
 
 import { CoinGeckoCoin } from '../type'
-import { SkeletonTable } from '@/components/ui/skeleton-table'
+import { SkeletonTable } from '@/shared/ui/skeleton-table'
 
 export function CoinTable() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null)

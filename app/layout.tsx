@@ -3,8 +3,10 @@
 import type { Metadata } from 'next'
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Serif } from 'next/font/google'
 
+import { Providers } from '@/providers/providers'
+import Header from '@/shared/layout/header'
+
 import './globals.css'
-import Providers from './providers'
 
 const _ibmPlexSans = IBM_Plex_Sans({
   subsets: ['latin'],
@@ -35,9 +37,13 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${_ibmPlexSans.variable} ${_ibmPlexSerif.variable} ${_ibmPlexMono.variable} font-sans`}
+      suppressHydrationWarning
     >
       <body className="antialiased p-4">
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   )
