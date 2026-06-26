@@ -39,11 +39,13 @@ export default function RootLayout({
       className={`${_ibmPlexSans.variable} ${_ibmPlexSerif.variable} ${_ibmPlexMono.variable} font-sans`}
       suppressHydrationWarning
     >
-      <body className="antialiased p-4">
-        <Providers>
-          <Header />
-          {children}
-        </Providers>
+      <body>
+        <div className="antialiased p-4">
+          <Providers>
+            <Header />
+            {children}
+          </Providers>
+        </div>
       </body>
     </html>
   )

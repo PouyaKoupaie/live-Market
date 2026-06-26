@@ -1,96 +1,113 @@
+// features/coins/components/coin-table.tsx
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
-import Image from 'next/image'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { ChevronRight } from 'lucide-react'
 
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/ui/table'
 import { getCoins } from '@/lib/fetcher'
-
-import { CoinGeckoCoin } from '../type'
 import { SkeletonTable } from '@/shared/ui/skeleton-table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+
+import { columns } from './columns'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 
 export function CoinTable() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['coins'],
     queryFn: getCoins,
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length === 0) return undefined
+      if (!lastPage || lastPage.length === 0) return undefined
       return allPages.length + 1
     },
   })
 
-  const coins = data?.pages.flat() ?? [] ;
+  const coins = data?.pages.flat() ?? []
 
-  // intersectionObserver logic
-  (useEffect(() => {
+  const table = useReactTable({
+    data: coins,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
+  const canAutoFetch = (data?.pages.length ?? 0) < 3
+  // Infinite Scroll Trigger
+  useEffect(() => {
     const el = loadMoreRef.current
     if (!el) return
 
     const observer = new IntersectionObserver((entries) => {
-      const first = entries[0]
-      if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      const firstEntry = entries[0]
+
+      if (firstEntry.isIntersecting && hasNextPage && !isFetchingNextPage && canAutoFetch) {
         fetchNextPage()
       }
     })
     observer.observe(el)
 
     return () => observer.disconnect()
-  }),
-    [fetchNextPage, hasNextPage, isFetchingNextPage])
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, coins.length])
 
   return (
-    <div>
+    <div className="space-y-4">
+      <Select>
+        <SelectTrigger>
+          <SelectValue placeholder="choose sort type"/>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value='market_cap'>by market cap</SelectItem>
+            <SelectItem value='increase'>by increase</SelectItem>
+            <SelectItem value='decrease'>by decrease</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>rank</TableHead>
-            <TableHead>coin</TableHead>
-            <TableHead>price</TableHead>
-            <TableHead>24h</TableHead>
-            <TableHead>Market Cap</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {coins.map((coin: CoinGeckoCoin) => (
-            <TableRow key={coin.id}>
-              <TableCell>{coin.market_cap_rank}</TableCell>
-              <TableCell>
-                <Image
-                  src={coin.image}
-                  alt={`${coin.symbol} icon`}
-                  width={22}
-                  height={22}
-                  style={{ display: 'inline' }}
-                  quality={75}
-                />
-                <span className="m-1">{coin.name}</span>
-                <span className="text-gray-400">{coin.symbol}</span>
-              </TableCell>
-              <TableCell>{coin.current_price}</TableCell>
-              <TableCell
-                className={coin.price_change_percentage_24h < 0 ? 'text-red-600' : 'text-green-600'}
-              >
-                {coin.price_change_percentage_24h} %
-              </TableCell>
-              <TableCell>{coin.market_cap}</TableCell>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              ))}
             </TableRow>
           ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.length > 0 ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="text-center h-24">
+                No coins found.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
-      <div ref={loadMoreRef} style={{ height: 1 }} />
-
-      {isFetchingNextPage && <SkeletonTable/>}
+        <div ref={loadMoreRef} />
+        {isFetchingNextPage && <SkeletonTable />}
+        {!canAutoFetch ? (
+          <span onClick={() => fetchNextPage()} className="text-primary flex items-center">
+            Load More <ChevronRight />
+          </span>
+        ) : (
+          ''
+        )}
     </div>
   )
 }

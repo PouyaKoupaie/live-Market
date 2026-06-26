@@ -51,14 +51,14 @@ export const ThemeSwitcher = ({
     [setTheme]
   );
 
-  // Prevent hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // // Prevent hydration mismatch
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  // if (!mounted) {
+  //   return null;
+  // }
 
   return (
     <div
